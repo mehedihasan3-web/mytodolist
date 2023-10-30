@@ -1,0 +1,244 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Document</title>
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css"
+      integrity="sha512-z3gLpd7yknf1YoNbCzqRKc4qyor8gaKU1qmn+CShxbuBusANI9QpRohGBreCFkKxLhei6S9CQXFEbbKuqLg0DA=="
+      crossorigin="anonymous"
+      referrerpolicy="no-referrer"
+    />
+    <style>
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+        list-style-type: none;
+        text-decoration: none;
+        outline: none;
+      }
+      html {
+        scroll-behavior: smooth;
+      }
+      .container {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        height: 100vh;
+        background: #333;
+        padding: 1rem;
+      }
+      .card {
+        background-color: #222;
+        color: #fff;
+        padding: 1rem;
+        height: 80vh;
+        width: 50%;
+        overflow: hidden;
+        overflow-y: scroll;
+        padding: 0.6rem;
+      }
+      .card_title {
+        font-size: 2.5rem;
+        text-align: center;
+        margin-bottom: 1rem;
+      }
+      input {
+        border: none;
+        border-radius: 0.6rem;
+        padding: 0.5rem;
+        width: 80%;
+      }
+      .btn {
+        border: none;
+        outline: none;
+        border-radius: 0.6rem;
+        padding: 0.5rem;
+        background-color: orange;
+        color: #fff;
+        transition: all 0.3s;
+        cursor: pointer;
+      }
+      .btn:hover {
+        background-color: white;
+        color: black;
+      }
+      #addTodoBtn {
+        width: 19%;
+      }
+
+      .list_style {
+        display: flex;
+        justify-content: space-between;
+        background-color: #333;
+        color: #fff;
+        padding: 0.5rem;
+        border-radius: 0.6rem;
+        align-items: center;
+        margin: 1rem 0;
+        transition: all 0.4s;
+      }
+      .list_style:hover {
+        background-color: #111;
+      }
+      .bg-success {
+        margin: 0.5rem 0;
+        padding: 0.5rem;
+        color: black;
+        background-color: #ddffdd;
+        border-left: 6px solid #04aa6d;
+      }
+      .bg-danger {
+        margin: 0.5rem 0;
+        padding: 0.5rem;
+        color: black;
+        background-color: #ffdddd;
+        border-left: 6px solid #f44336;
+      }
+      @media screen and (max-width: 990px) {
+        .card {
+          width: 60%;
+        }
+      }
+      @media screen and (max-width: 768px) {
+        .card {
+          width: 90%;
+        }
+      }
+
+      @media screen and (max-width: 600px) {
+        .card {
+          width: 100%;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <div class="card">
+        <h1 class="card_title">Todo App</h1>
+
+        <div class="cardBody">
+          <form class="todo_form">
+            <input
+              type="text"
+              placeholder="Enter a todo here"
+              id="inputTodo"
+              required
+            />
+            <button class="btn" id="addTodoBtn" type="submit">Add Todo</button>
+          </form>
+          <p id="message"></p>
+          <ul id="lists"></ul>
+        </div>
+      </div>
+    </div>
+
+    <script>
+      const container = document.querySelector(".container");
+      const todoForm = document.querySelector(".todo_form");
+      const todoInput = document.querySelector("#inputTodo");
+      const todoAddBtn = document.querySelector("#addTodoBtn");
+      const todoLists = document.querySelector("#lists");
+      const massageElement = document.querySelector("#message");
+
+      // 10th
+      // showMessage
+
+      const showMessage = (text, status) => {
+        massageElement.textContent = text;
+        massageElement.classList.add(`bg-${status}`);
+        setTimeout(() => {
+          massageElement.textContent = "";
+          massageElement.classList.remove(`bg-${status}`);
+        }, 1000);
+      };
+
+      // 8th
+      // create todo
+      const createTodo = (todoId, todoValue) => {
+        // 9th
+        //add element
+        const todoElement = document.createElement("li");
+        todoElement.id = todoId;
+        todoElement.classList.add("list_style");
+        todoElement.innerHTML = `
+  
+  <span> ${todoValue} </span>
+    <span> <button class="btn" id="deleteButton"><i class="fa-solid fa-trash"></i></button> </span> 
+  
+  
+  `;
+        todoLists.appendChild(todoElement);
+        // 13th
+        //delete todo
+        const deleteButton = todoElement.querySelector("#deleteButton");
+        deleteButton.addEventListener("click", deleteTodo);
+      };
+      // 14th
+      // delete todo function
+      const deleteTodo = (event) => {
+        const selectedTodo =
+          event.target.parentElement.parentElement.parentElement;
+        todoLists.removeChild(selectedTodo);
+
+        showMessage("Todo is delete", "danger");
+
+        // delete form localStorage
+        const todoId = selectedTodo.id;
+        let todos = getTodosFromLocalStorage();
+        todos = todos.filter((todo) => todo.todoId !== selectedTodo.id);
+        localStorage.setItem("mytodos", JSON.stringify(todos));
+      };
+
+      // 12
+      //gettodosFromLocalStorage
+      const getTodosFromLocalStorage = () => {
+        return localStorage.getItem("mytodos")
+          ? JSON.parse(localStorage.getItem("mytodos"))
+          : [];
+      };
+
+      // 2nd
+      // addTodo
+      const addTodo = (event) => {
+        event.preventDefault();
+        // 3rd
+        // finding a value
+        const todoValue = todoInput.value;
+
+        // 4th
+        //unique id
+        const todoId = Date.now().toString();
+
+        // 5th
+        // create todo
+        createTodo(todoId, todoValue);
+
+        //show massage
+        showMessage("todo is added", "success");
+
+        // 11th
+        // localStorage adding value
+        const todos = getTodosFromLocalStorage();
+        todos.push({ todoId, todoValue });
+        localStorage.setItem("mytodos", JSON.stringify(todos));
+        todoInput.value = "";
+      };
+      // 1st
+      // adding listener in form
+      todoForm.addEventListener("submit", addTodo);
+
+      // last
+      // loadTodo
+      const loadTodo = () => {
+        const todos = getTodosFromLocalStorage();
+        todos.map((todo) => createTodo(todo.todoId, todo.todoValue));
+      };
+      window.addEventListener("DOMContentLoaded", loadTodo);
+    </script>
+  </body>
+</html>
